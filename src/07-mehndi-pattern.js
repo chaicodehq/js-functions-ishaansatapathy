@@ -90,8 +90,8 @@ export function generatePattern(n) {
   if (typeof n !== 'number' || n <= 0 || !Number.isInteger(n)) return [];
   function helper(k) {
     if (k === 1) return ['*'];
-    const up = helper(k - 1);
-    return [...up, '*'.repeat(k), ...up];
+    return [...helper(k - 1), '*'.repeat(k)];
   }
-  return helper(n);
+  const ascending = helper(n);
+  return [...ascending, ...ascending.slice(0, -1).reverse()];
 }
