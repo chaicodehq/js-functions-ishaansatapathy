@@ -53,21 +53,45 @@
  *   generatePattern(3)        // => ["*", "**", "***", "**", "*"]
  */
 export function repeatChar(char, n) {
-  // Your code here
+  if (typeof char !== 'string' || !char || typeof n !== 'number' || n <= 0) return '';
+  if (n === 1) return char;
+  return char + repeatChar(char, n - 1);
 }
 
 export function sumNestedArray(arr) {
-  // Your code here
+  if (!Array.isArray(arr)) return 0;
+  let sum = 0;
+  for (let el of arr) {
+    if (Array.isArray(el)) sum += sumNestedArray(el);
+    else if (typeof el === 'number') sum += el;
+  }
+  return sum;
 }
 
 export function flattenArray(arr) {
-  // Your code here
+  if (!Array.isArray(arr)) return [];
+  let flat = [];
+  for (let el of arr) {
+    if (Array.isArray(el)) flat = flat.concat(flattenArray(el));
+    else flat.push(el);
+  }
+  return flat;
 }
 
 export function isPalindrome(str) {
-  // Your code here
+  if (typeof str !== 'string') return false;
+  str = str.toLowerCase();
+  if (str.length <= 1) return true;
+  if (str[0] !== str[str.length - 1]) return false;
+  return isPalindrome(str.slice(1, -1));
 }
 
 export function generatePattern(n) {
-  // Your code here
+  if (typeof n !== 'number' || n <= 0 || !Number.isInteger(n)) return [];
+  function helper(k) {
+    if (k === 1) return ['*'];
+    const up = helper(k - 1);
+    return [...up, '*'.repeat(k), ...up];
+  }
+  return helper(n);
 }
