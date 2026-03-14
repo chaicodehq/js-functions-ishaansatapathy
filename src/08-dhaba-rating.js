@@ -60,11 +60,18 @@ export function createFilter(field, operator, value) {
 
 export function createSorter(field, order = "asc") {
   return function(a, b) {
-    if (a[field] === b[field]) return 0;
+    const valueA = a?.[field];
+    const valueB = b?.[field];
+    if (valueA === valueB) return 0;
+    if (typeof valueA === "string" && typeof valueB === "string") {
+      return order === "desc"
+        ? valueB.localeCompare(valueA)
+        : valueA.localeCompare(valueB);
+    }
     if (order === 'desc') {
-      return a[field] < b[field] ? 1 : -1;
+      return valueA < valueB ? 1 : -1;
     } else {
-      return a[field] > b[field] ? 1 : -1;
+      return valueA > valueB ? 1 : -1;
     }
   };
 }
@@ -72,8 +79,11 @@ export function createSorter(field, order = "asc") {
 export function createMapper(fields) {
   return function(obj) {
     const res = {};
+    if (!Array.isArray(fields) || !obj || typeof obj !== "object") {
+      return res;
+    }
     for (let f of fields) {
-      if (obj && Object.prototype.hasOwnProperty.call(obj, f)) {
+      if (Object.prototype.hasOwnProperty.call(obj, f)) {
         res[f] = obj[f];
       }
     }

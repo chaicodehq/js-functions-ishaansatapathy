@@ -40,18 +40,21 @@
  *   // => { totalCustomers: 3, totalRevenue: 7200, mealBreakdown: { veg: 2, nonveg: 1 } }
  */
 export function createTiffinPlan({ name, mealType = "veg", days = 30 } = {}) {
-  // Your code here
-  const Tiffin = {
+  const tiffinRates = {
     veg: 80,
     nonveg: 120,
     jain: 90
   };
-  
-  if (!name || name.length === 0 || !(mealType in Tiffin)) {
+
+  if (typeof name !== "string" || name.trim() === "" || !(mealType in tiffinRates)) {
     return null;
   }
-  
-  const dailyRate = Tiffin[mealType];
+
+  if (!Number.isFinite(days) || days <= 0) {
+    return null;
+  }
+
+  const dailyRate = tiffinRates[mealType];
   const totalCost = days * dailyRate;
   
   return {
@@ -64,24 +67,28 @@ export function createTiffinPlan({ name, mealType = "veg", days = 30 } = {}) {
 }
 
 export function combinePlans(...plans) {
-  // Your code here
   if (plans.length === 0) {
     return null;
   }
-  
-  const totalCustomers = plans.length;
-  const totalRevenue = plans.reduce((sum, plan) => {
-    return sum + plan.totalCost;
-  }, 0);
-  
-  const mealBreakdown = {
-    veg: 0,
-    nonveg: 0,
-    jain: 0
-  };
-  
-  for (let plan of plans) {
-    mealBreakdown[plan.mealType]++;
+
+  const validPlans = plans.filter(
+    (plan) =>
+      plan &&
+      typeof plan === "object" &&
+      typeof plan.mealType === "string" &&
+      Number.isFinite(plan.totalCost)
+  );
+
+  if (validPlans.length === 0) {
+    return null;
+  }
+
+  const totalCustomers = validPlans.length;
+  const totalRevenue = validPlans.reduce((sum, plan) => sum + plan.totalCost, 0);
+  const mealBreakdown = {};
+
+  for (const plan of validPlans) {
+    mealBreakdown[plan.mealType] = (mealBreakdown[plan.mealType] || 0) + 1;
   }
   
   return {
@@ -92,11 +99,20 @@ export function combinePlans(...plans) {
 }
 
 export function applyAddons(plan, ...addons) {
-  // Your code here
-  if (!plan) return null;
+  if (!plan || typeof plan !== "object" || !Number.isFinite(plan.dailyRate) || !Number.isFinite(plan.days)) {
+    return null;
+  }
 
-  const addonNames = addons.map(addon => addon.name);
-  const addonTotal = addons.reduce((sum, addon) => sum + addon.price, 0);
+  const validAddons = addons.filter(
+    (addon) =>
+      addon &&
+      typeof addon === "object" &&
+      typeof addon.name === "string" &&
+      Number.isFinite(addon.price)
+  );
+
+  const addonNames = validAddons.map((addon) => addon.name);
+  const addonTotal = validAddons.reduce((sum, addon) => sum + addon.price, 0);
 
   const newDailyRate = plan.dailyRate + addonTotal;
   const newTotalCost = newDailyRate * plan.days;

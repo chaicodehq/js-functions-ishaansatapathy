@@ -45,8 +45,7 @@
  *   pricer("gold", true)  // => 200 * 1.5 * 1.3 = 390
  */
 export function createDialogueWriter(genre) {
-  // Your code here
-   const templates = {
+  const templates = {
     action: (hero, villain) =>
       `${hero} says: 'Tujhe toh main dekh lunga, ${villain}!'`,
 
@@ -60,16 +59,23 @@ export function createDialogueWriter(genre) {
       `${hero} cries: '${villain}, tune mera sab kuch cheen liya!'`
   };
 
-  if (!templates[genre]) return null; // invalid genre
+  if (typeof genre !== "string" || !templates[genre]) return null;
 
   return function (hero, villain) {
-    if (!hero || !villain) return "...";
-    return templates[genre](hero, villain); // closure use
+    if (
+      typeof hero !== "string" ||
+      typeof villain !== "string" ||
+      hero.trim() === "" ||
+      villain.trim() === ""
+    ) {
+      return "...";
+    }
+    return templates[genre](hero, villain);
   };
 }
 
 export function createTicketPricer(basePrice) {
-  if (typeof basePrice !== 'number' || basePrice <= 0) return null;
+  if (!Number.isFinite(basePrice) || basePrice <= 0) return null;
 
   const multipliers = {
     silver: 1,
@@ -88,14 +94,14 @@ export function createTicketPricer(basePrice) {
 }
 
 export function createRatingCalculator(weights) {
-  if (typeof weights !== 'object' || weights === null) return null;
+  if (!weights || typeof weights !== "object" || Array.isArray(weights)) return null;
 
   return function (scores) {
-    if (typeof scores !== 'object' || scores === null) return 0;
+    if (!scores || typeof scores !== "object" || Array.isArray(scores)) return 0;
 
     let total = 0;
     for (const key in weights) {
-      if (scores[key] !== undefined) {
+      if (Number.isFinite(weights[key]) && Number.isFinite(scores[key])) {
         total += scores[key] * weights[key];
       }
     }

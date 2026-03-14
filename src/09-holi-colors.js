@@ -55,7 +55,14 @@
  */
 export function mixColors(color1, color2) {
   if (!color1 || !color2 || typeof color1 !== 'object' || typeof color2 !== 'object') return null;
-  const valid = c => typeof c.r === 'number' && typeof c.g === 'number' && typeof c.b === 'number' && typeof c.name === 'string';
+  const valid = c =>
+    typeof c.r === 'number' &&
+    typeof c.g === 'number' &&
+    typeof c.b === 'number' &&
+    Number.isFinite(c.r) &&
+    Number.isFinite(c.g) &&
+    Number.isFinite(c.b) &&
+    typeof c.name === 'string';
   if (!valid(color1) || !valid(color2)) return null;
   return {
     name: `${color1.name}-${color2.name}`,
@@ -66,8 +73,15 @@ export function mixColors(color1, color2) {
 }
 
 export function adjustBrightness(color, factor) {
-  if (!color || typeof color !== 'object' || typeof factor !== 'number') return null;
-  const valid = c => typeof c.r === 'number' && typeof c.g === 'number' && typeof c.b === 'number' && typeof c.name === 'string';
+  if (!color || typeof color !== 'object' || !Number.isFinite(factor)) return null;
+  const valid = c =>
+    typeof c.r === 'number' &&
+    typeof c.g === 'number' &&
+    typeof c.b === 'number' &&
+    Number.isFinite(c.r) &&
+    Number.isFinite(c.g) &&
+    Number.isFinite(c.b) &&
+    typeof c.name === 'string';
   if (!valid(color)) return null;
   const clamp = v => Math.max(0, Math.min(255, Math.round(v)));
   return {
@@ -79,13 +93,21 @@ export function adjustBrightness(color, factor) {
 }
 
 export function addToPalette(palette, color) {
-  if (!color || typeof color !== 'object') return Array.isArray(palette) ? [...palette] : [];
+  const isValidColor =
+    color &&
+    typeof color === 'object' &&
+    typeof color.name === 'string' &&
+    Number.isFinite(color.r) &&
+    Number.isFinite(color.g) &&
+    Number.isFinite(color.b);
+  if (!isValidColor) return Array.isArray(palette) ? [...palette] : [];
   if (!Array.isArray(palette)) return [color];
   return [...palette, color];
 }
 
 export function removeFromPalette(palette, colorName) {
   if (!Array.isArray(palette)) return [];
+  if (typeof colorName !== 'string') return [...palette];
   return palette.filter(c => c && c.name !== colorName);
 }
 

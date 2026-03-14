@@ -53,12 +53,20 @@ export function createDabbawala(name, area) {
   let nextId = 1;
   return {
     addDelivery(from, to) {
-      if (!from || !to) return -1;
+      if (
+        typeof from !== "string" ||
+        typeof to !== "string" ||
+        from.trim() === "" ||
+        to.trim() === ""
+      ) {
+        return -1;
+      }
       const delivery = { id: nextId++, from, to, status: "pending" };
       deliveries.push(delivery);
       return delivery.id;
     },
     completeDelivery(id) {
+      if (!Number.isInteger(id) || id <= 0) return false;
       const d = deliveries.find(del => del.id === id);
       if (d && d.status === "pending") {
         d.status = "completed";

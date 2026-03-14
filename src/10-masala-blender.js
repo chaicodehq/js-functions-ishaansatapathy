@@ -53,16 +53,18 @@
  *   // => { name: "Haldi", form: "powder", packed: true, label: "Haldi Masala" }
  */
 export function pipe(...fns) {
-  if (fns.length === 0) return x => x;
+  const validFns = fns.filter((fn) => typeof fn === "function");
+  if (validFns.length === 0) return x => x;
   return function(x) {
-    return fns.reduce((acc, fn) => fn(acc), x);
+    return validFns.reduce((acc, fn) => fn(acc), x);
   };
 }
 
 export function compose(...fns) {
-  if (fns.length === 0) return x => x;
+  const validFns = fns.filter((fn) => typeof fn === "function");
+  if (validFns.length === 0) return x => x;
   return function(x) {
-    return fns.reduceRight((acc, fn) => fn(acc), x);
+    return validFns.reduceRight((acc, fn) => fn(acc), x);
   };
 }
 

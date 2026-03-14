@@ -50,15 +50,26 @@
  */
 export function createFestivalManager() {
   let festivals = [];
+  const validTypes = ["religious", "national", "cultural"];
+  const isValidDateString = (date) =>
+    typeof date === "string" &&
+    /^\d{4}-\d{2}-\d{2}$/.test(date) &&
+    !Number.isNaN(Date.parse(`${date}T00:00:00Z`));
+
   return {
     addFestival(name, date, type) {
-      const validTypes = ["religious", "national", "cultural"];
-      if (!name || typeof date !== 'string' || !validTypes.includes(type)) return -1;
+      if (
+        typeof name !== "string" ||
+        name.trim() === "" ||
+        !isValidDateString(date) ||
+        !validTypes.includes(type)
+      ) return -1;
       if (festivals.some(f => f.name === name)) return -1;
       festivals.push({ name, date, type });
       return festivals.length;
     },
     removeFestival(name) {
+      if (typeof name !== "string") return false;
       const idx = festivals.findIndex(f => f.name === name);
       if (idx === -1) return false;
       festivals = [...festivals.slice(0, idx), ...festivals.slice(idx + 1)];
@@ -68,9 +79,12 @@ export function createFestivalManager() {
       return festivals.map(f => ({ ...f }));
     },
     getByType(type) {
+      if (!validTypes.includes(type)) return [];
       return festivals.filter(f => f.type === type).map(f => ({ ...f }));
     },
     getUpcoming(currentDate, n = 3) {
+      if (!isValidDateString(currentDate)) return [];
+      if (!Number.isInteger(n) || n <= 0) return [];
       return festivals
         .filter(f => f.date >= currentDate)
         .sort((a, b) => a.date.localeCompare(b.date))
